@@ -1,13 +1,14 @@
 package ru.yandex.practicum.item;
 
-import lombok.*;
-import ru.yandex.practicum.exceptions.ErrorHandler;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import ru.yandex.practicum.request.ItemRequest;
 import ru.yandex.practicum.user.User;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
