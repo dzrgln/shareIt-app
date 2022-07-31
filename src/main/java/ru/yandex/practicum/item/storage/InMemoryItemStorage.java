@@ -48,19 +48,13 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Item create(int userid, Item item) {
-//        if (userid == 0) {
-//            throw new ValidationException("Необходимо ввести непустой id");
-//        }
-        if (!userStorage.isUser(userid)){
+        if (!userStorage.isUser(userid)) {
             throw new ObjectNotFoundException("Такаого пользователя не сущестует");
         }
-            System.out.println("Inside if");
-        System.out.println("Is present " + userStorage.isUser(userid));
-            id++;
-            item.setId(id);
-            item.setOwner(userStorage.getUserById(userid).get());
-            System.out.println("After getUserById");
-            items.put(id, item);
+        id++;
+        item.setId(id);
+        item.setOwner(userStorage.getUserById(userid).get());
+        items.put(id, item);
 
         return item;
     }
@@ -79,25 +73,25 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Item update(int userId, int itemId, ItemDtoRequest itemDto) {
-        Item item;
-        if (items.containsKey(itemId)) {
-            if (userStorage.getUserById(userId).isPresent()) {
-                if (userStorage.getUserById(userId).get().getId() == items.get(itemId).getOwner().getId()) {
-                    item = ItemMapper.updateItem(itemDto, items.get(itemId));
-                    item.setOwner(userStorage.getUserById(userId).get());
-                    item.setId(itemId);
-                    items.remove(itemId);
-                    items.put(itemId, item);
-                } else {
-                    throw new ObjectNotFoundException(String.format("Пользователь с id \"%s\"не владелец вещи.", userId));
-                }
-            } else {
-                throw new ValidationException(String.format("Пользователь с id \"%s\"не существует.", userId));
-            }
-        } else {
+        validateUpdate(userId, itemId, itemDto);
+        Item item = ItemMapper.updateItem(itemDto, items.get(itemId));
+        item.setOwner(userStorage.getUserById(userId).get());
+        item.setId(itemId);
+        items.remove(itemId);
+        items.put(itemId, item);
+        return item;
+    }
+
+    private void validateUpdate(int userId, int itemId, ItemDtoRequest itemDto) {
+        if (!items.containsKey(itemId)) {
             throw new ObjectNotFoundException(String.format("Вещи с id \"%s\"не существует.", itemId));
         }
-        return item;
+        if (!userStorage.getUserById(userId).isPresent()) {
+            throw new ValidationException(String.format("Пользователь с id \"%s\"не существует.", userId));
+        }
+        if (userStorage.getUserById(userId).get().getId() != items.get(itemId).getOwner().getId()) {
+            throw new ObjectNotFoundException(String.format("Пользователь с id \"%s\"не владелец вещи.", userId));
+        }
     }
 
     @Override
@@ -105,14 +99,14 @@ public class InMemoryItemStorage implements ItemStorage {
         List<ItemDtoResponse> listItems = new ArrayList<>();
         if (!text.equals("")) {
             for (Item item : items.values()) {
-                if (item.isAvailable()) {
-                    if (item.getName().toLowerCase().contains(text)
-                            || item.getDescription().toLowerCase().contains(text)) {
-                        listItems.add(ItemMapper.toItemResponseDto(item));
-                    }
+                if (item.isAvailable() &&
+                        (item.getName().toLowerCase().contains(text)
+                                || item.getDescription().toLowerCase().contains(text))) {
+                    listItems.add(ItemMapper.toItemResponseDto(item));
                 }
             }
         }
+
         return listItems;
     }
 }

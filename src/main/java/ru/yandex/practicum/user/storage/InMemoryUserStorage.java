@@ -23,7 +23,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User>  getUserById(Integer id) {
+    public Optional<User> getUserById(Integer id) {
         Optional<User> optionalUser;
         if (users.containsKey(id)) {
             User user = users.get(id);
@@ -50,6 +50,16 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(int id, UserDto userDto) {
+        validateUpdate(id, userDto);
+        emails.remove(getUserById(1).get().getEmail());
+        User user = UserMapper.updateUser(userDto, getUserById(id).get());
+        user.setId(id);
+        users.put(id, user);
+        emails.add(user.getEmail());
+        return user;
+    }
+
+    private void validateUpdate(int id, UserDto userDto) {
         if (id == 0) {
             throw new ValidationException("Введите id пользователя, которого необходимо обновить");
         }
@@ -59,12 +69,6 @@ public class InMemoryUserStorage implements UserStorage {
         if (emails.contains(userDto.getEmail())) {
             throw new ValidationException("Пользователь с такой электронной почтой уже существует");
         }
-        emails.remove(getUserById(1).get().getEmail());
-        User user = UserMapper.updateUser(userDto, getUserById(id).get());
-        user.setId(id);
-        users.put(id, user);
-        emails.add(user.getEmail());
-        return user;
     }
 
     @Override
@@ -78,7 +82,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
-    public boolean isUser(int id){
+    public boolean isUser(int id) {
         return users.containsKey(id);
     }
 }

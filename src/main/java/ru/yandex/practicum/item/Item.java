@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Builder
 @RequiredArgsConstructor
-
 public class Item {
     private int id;
     @NotNull
