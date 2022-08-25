@@ -1,6 +1,7 @@
 package ru.yandex.practicum.user.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.exceptions.ValidationException;
@@ -11,7 +12,8 @@ import ru.yandex.practicum.user.UserMapper;
 import java.util.*;
 
 @Slf4j
-@Component
+//@Component
+@Qualifier("MemoryUser")
 public class InMemoryUserStorage implements UserStorage {
     private Map<Integer, User> users = new HashMap<>();
     private Set<String> emails = new HashSet<>();

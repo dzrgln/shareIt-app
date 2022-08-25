@@ -3,11 +3,11 @@ package ru.yandex.practicum.item;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.yandex.practicum.request.ItemRequest;
+import ru.yandex.practicum.request.Request;
 
 @Data
 @NoArgsConstructor
-@Builder
+
 public class ItemDtoResponse {
     private int id;
 
@@ -16,19 +16,19 @@ public class ItemDtoResponse {
     private String description;
 
     private boolean available;
-    private ItemRequest request;
+    private Request request;
 
-    public ItemDtoResponse(String name, String description, boolean available, ItemRequest request) {
+    public ItemDtoResponse(String name, String description, boolean available) {
         this.name = name;
         this.description = description;
         this.available = available;
-        this.request = request;
+   //     this.request = request;
     }
-    public ItemDtoResponse(int id, String name, String description, boolean available, ItemRequest request) {
+    public ItemDtoResponse(int id, String name, String description, boolean available) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.available = available;
-        this.request = request;
+  //      this.request = request;
     }
 }

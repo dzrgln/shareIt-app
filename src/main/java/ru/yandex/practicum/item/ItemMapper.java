@@ -6,8 +6,8 @@ public class ItemMapper {
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.isAvailable(),
-                item.getRequest() != null ? item.getRequest() : null
+                item.isAvailable()
+//                item.getRequest() != null ? item.getRequest() : null
         );
     }
 
@@ -17,8 +17,8 @@ public class ItemMapper {
                 itemDto.getName() != null ? itemDto.getName() : item.getName(),
                 itemDto.getDescription() != null ? itemDto.getDescription() : item.getDescription(),
                 null,
-                itemDto.getAvailable() != null ? Boolean.parseBoolean(itemDto.getAvailable()) : item.isAvailable(),
-                itemDto.getRequest() != null ? itemDto.getRequest() : item.getRequest()
+                itemDto.getAvailable() != null ? Boolean.parseBoolean(itemDto.getAvailable()) : item.isAvailable()
+  //              itemDto.getRequest() != null ? itemDto.getRequest() : item.getRequest()
         );
     }
 
@@ -28,8 +28,8 @@ public class ItemMapper {
                 itemDto.getName(),
                 itemDto.getDescription(),
                 null,
-                Boolean.parseBoolean(itemDto.getAvailable()),
-                itemDto.getRequest()
+                Boolean.parseBoolean(itemDto.getAvailable())
+           //     itemDto.getRequest()
         );
     }
 }

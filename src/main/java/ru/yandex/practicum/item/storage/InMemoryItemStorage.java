@@ -1,5 +1,6 @@
 package ru.yandex.practicum.item.storage;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.exceptions.ValidationException;
@@ -12,13 +13,13 @@ import ru.yandex.practicum.user.storage.UserStorage;
 
 import java.util.*;
 
-@Component
+//@Component
 public class InMemoryItemStorage implements ItemStorage {
     private Map<Integer, Item> items = new HashMap<>();
     private final UserStorage userStorage;
     private int id = 0;
 
-    public InMemoryItemStorage(UserStorage userStorage) {
+    public InMemoryItemStorage(@Qualifier("MemoryUser") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -86,7 +87,7 @@ public class InMemoryItemStorage implements ItemStorage {
         if (!items.containsKey(itemId)) {
             throw new ObjectNotFoundException(String.format("Вещи с id \"%s\"не существует.", itemId));
         }
-        if (!userStorage.getUserById(userId).isPresent()) {
+        if (userStorage.getUserById(userId).isEmpty()) {
             throw new ValidationException(String.format("Пользователь с id \"%s\"не существует.", userId));
         }
         if (userStorage.getUserById(userId).get().getId() != items.get(itemId).getOwner().getId()) {
