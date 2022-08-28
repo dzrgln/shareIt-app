@@ -1,4 +1,4 @@
-package ru.yandex.practicum.booking;
+package ru.yandex.practicum.comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,32 +7,25 @@ import ru.yandex.practicum.item.Item;
 import ru.yandex.practicum.user.User;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "bookings", schema = "public")
-public class Booking {
+@Table(name = "comments", schema = "public")
+public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
+    @Column(name = "text")
+    private String text;
     @ManyToOne
     @JoinColumn(name = "item_id")
     private Item item;
-
     @ManyToOne
-    private User booker;
-
-    @Column(name = "start_date")
-    private Timestamp start;
-
-    @Column(name = "end_date")
-    private Timestamp end;
-
-    @Enumerated(EnumType.STRING)
-    private BookingStatus status;
+    @JoinColumn(name = "user_id")
+    private User author;
+    private LocalDateTime created;
 }

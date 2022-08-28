@@ -1,9 +1,9 @@
 package ru.yandex.practicum.item;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.comment.Comment;
 import ru.yandex.practicum.item.storage.ItemStorage;
 
 import javax.validation.Valid;
@@ -47,5 +47,12 @@ public class ItemController {
     public List<ItemDtoResponse> foundedItems(@RequestParam String text) {
         log.info("Поиск объектов, содержащих слово '{}'", text);
         return itemStorage.searchItems(text.toLowerCase());
+    }
+    @PostMapping("/{itemId}")
+    public Item addComment( @PathVariable("itemId") int itemId,
+                            @RequestBody Comment comment,
+                            @RequestHeader("X-Sharer-User-Id") int userId) {
+        log.info("Создан объект '{}'", comment);
+        return itemStorage.create(userId, comment);
     }
 }

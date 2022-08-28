@@ -1,6 +1,5 @@
 package ru.yandex.practicum.exceptions;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +15,10 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFoundException(final ObjectNotFoundException e) {
+        return new ErrorResponse(e.getMessage());
+    }    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingException(final BookingException e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -40,13 +43,13 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse errorInValid(final MethodArgumentNotValidException e) {
-        return new ErrorResponse("Ошибка внутренней валидации");
+        return new ErrorResponse(e.toString());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse errorInValid(final HttpMessageNotReadableException e) {
-        return new ErrorResponse("Ошибка внутренней валидации");
+        return new ErrorResponse(e.toString());
     }
 
     @ExceptionHandler

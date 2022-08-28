@@ -1,7 +1,6 @@
 package ru.yandex.practicum.user;
 
 import lombok.*;
-import ru.yandex.practicum.item.Item;
 import ru.yandex.practicum.request.Request;
 
 import javax.persistence.*;

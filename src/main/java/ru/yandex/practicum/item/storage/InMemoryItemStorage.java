@@ -1,7 +1,6 @@
 package ru.yandex.practicum.item.storage;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.exceptions.ValidationException;
 import ru.yandex.practicum.item.Item;
@@ -87,7 +86,7 @@ public class InMemoryItemStorage implements ItemStorage {
         if (!items.containsKey(itemId)) {
             throw new ObjectNotFoundException(String.format("Вещи с id \"%s\"не существует.", itemId));
         }
-        if (userStorage.getUserById(userId).isEmpty()) {
+        if (!userStorage.getUserById(userId).isPresent()) {
             throw new ValidationException(String.format("Пользователь с id \"%s\"не существует.", userId));
         }
         if (userStorage.getUserById(userId).get().getId() != items.get(itemId).getOwner().getId()) {
@@ -100,7 +99,7 @@ public class InMemoryItemStorage implements ItemStorage {
         List<ItemDtoResponse> listItems = new ArrayList<>();
         if (!text.equals("")) {
             for (Item item : items.values()) {
-                if (item.isAvailable() &&
+                if (item.getAvailable() &&
                         (item.getName().toLowerCase().contains(text)
                                 || item.getDescription().toLowerCase().contains(text))) {
                     listItems.add(ItemMapper.toItemResponseDto(item));

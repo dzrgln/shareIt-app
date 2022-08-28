@@ -1,7 +1,6 @@
 package ru.yandex.practicum.user.storage;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.exceptions.ValidationException;

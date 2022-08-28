@@ -6,7 +6,8 @@ public class ItemMapper {
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.isAvailable()
+                item.getAvailable(),
+                item.getBookingList()
 //                item.getRequest() != null ? item.getRequest() : null
         );
     }
@@ -17,19 +18,10 @@ public class ItemMapper {
                 itemDto.getName() != null ? itemDto.getName() : item.getName(),
                 itemDto.getDescription() != null ? itemDto.getDescription() : item.getDescription(),
                 null,
-                itemDto.getAvailable() != null ? Boolean.parseBoolean(itemDto.getAvailable()) : item.isAvailable()
-  //              itemDto.getRequest() != null ? itemDto.getRequest() : item.getRequest()
+                null,
+                itemDto.getAvailable() != null ? Boolean.parseBoolean(itemDto.getAvailable()) : item.getAvailable()
+                //              itemDto.getRequest() != null ? itemDto.getRequest() : item.getRequest()
         );
     }
 
-    public static Item toItem(ItemDtoRequest itemDto) {
-        return new Item(
-                0,
-                itemDto.getName(),
-                itemDto.getDescription(),
-                null,
-                Boolean.parseBoolean(itemDto.getAvailable())
-           //     itemDto.getRequest()
-        );
-    }
 }
