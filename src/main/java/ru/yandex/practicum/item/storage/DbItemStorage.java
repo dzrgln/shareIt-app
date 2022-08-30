@@ -2,13 +2,19 @@ package ru.yandex.practicum.item.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.booking.Booking;
 import ru.yandex.practicum.booking.BookingRepository;
+import ru.yandex.practicum.booking.BookingStatus;
+import ru.yandex.practicum.comment.*;
+import ru.yandex.practicum.exceptions.BookingException;
 import ru.yandex.practicum.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.exceptions.ValidationException;
 import ru.yandex.practicum.item.*;
 import ru.yandex.practicum.user.User;
 import ru.yandex.practicum.user.UserRepository;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +26,9 @@ public class DbItemStorage implements ItemStorage {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
+    private final ItemMapper itemMapper;
 
     @Override
     public List<Item> getItems(int userId) {
@@ -32,8 +41,7 @@ public class DbItemStorage implements ItemStorage {
             throw new ObjectNotFoundException(String.format("Вещи с id \"%s\"не существует.", itemId));
         }
         Item item = itemRepository.findById(itemId).get();
-        ItemDtoResponse itemDtoResponse = ItemMapper.toItemResponseDto(item);
-        itemDtoResponse.setBookingList(bookingRepository.findByItem(item));
+        ItemDtoResponse itemDtoResponse = itemMapper.itemToResponseItem(item);
         return Optional.of(itemDtoResponse);
     }
 
@@ -55,7 +63,7 @@ public class DbItemStorage implements ItemStorage {
         validateUpdate(userId, itemId, itemDto);
         Item newItem = null;
         if (itemRepository.findById(itemId).isPresent()) {
-            newItem = ItemMapper.updateItem(itemDto, itemRepository.findById(itemId).get());
+            newItem = ItemMapperUpdate.updateItem(itemDto, itemRepository.findById(itemId).get());
         } else {
             throw new ObjectNotFoundException("Указанной вещи не существует");
         }
@@ -72,7 +80,7 @@ public class DbItemStorage implements ItemStorage {
                 if (item.getAvailable() &&
                         (item.getName().toLowerCase().contains(text)
                                 || item.getDescription().toLowerCase().contains(text))) {
-                    listItems.add(ItemMapper.toItemResponseDto(item));
+                    listItems.add(itemMapper.itemToResponseItem(item));
                 }
             }
         }
@@ -103,4 +111,27 @@ public class DbItemStorage implements ItemStorage {
         return item;
     }
 
+    @Override
+    public ResponseDtoComment addComment(int itemId, int userId, RequestDtoComment requestDtoComment) {
+        Comment comment = commentMapper.requestCommentToComment(requestDtoComment);
+        comment.setAuthor(userRepository.findById(userId).get());
+        comment.setItem(getItem(itemId));
+        validateAddComment(comment);
+        commentRepository.save(comment);
+        ResponseDtoComment responseDtoComment = commentMapper.commentToResponseComment(comment);
+        comment.getItem().getCommentList().add(comment);
+        itemRepository.save(comment.getItem());
+        return responseDtoComment;
+    }
+
+    private void validateAddComment(Comment comment) {
+        List<Booking> bookingList = bookingRepository.findByItemAndBookerAndStatusAndStartBefore(
+                comment.getItem(),
+                comment.getAuthor(),
+                BookingStatus.APPROVED,
+                Timestamp.from(Instant.now().plusSeconds(86500)));
+        if (bookingList.isEmpty()) {
+            throw new BookingException("Пользователь не пользовался указанной вещью");
+        }
+    }
 }

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.booking.Booking;
+import ru.yandex.practicum.comment.Comment;
+import ru.yandex.practicum.comment.ResponseDtoComment;
 import ru.yandex.practicum.user.User;
 
 import javax.persistence.*;
@@ -37,6 +39,10 @@ public class Item {
     @OneToMany
     @JoinColumn(name = "item")
     List<Booking> bookingList;
+
+    @OneToMany
+    @JoinColumn(name = "item")
+    List<Comment> commentList;
 
     @NotNull
     private Boolean available;

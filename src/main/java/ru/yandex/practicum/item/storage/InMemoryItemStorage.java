@@ -1,12 +1,14 @@
 package ru.yandex.practicum.item.storage;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import ru.yandex.practicum.comment.RequestDtoComment;
+import ru.yandex.practicum.comment.ResponseDtoComment;
 import ru.yandex.practicum.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.exceptions.ValidationException;
 import ru.yandex.practicum.item.Item;
 import ru.yandex.practicum.item.ItemDtoRequest;
 import ru.yandex.practicum.item.ItemDtoResponse;
-import ru.yandex.practicum.item.ItemMapper;
+import ru.yandex.practicum.item.ItemMapperUpdate;
 import ru.yandex.practicum.user.User;
 import ru.yandex.practicum.user.storage.UserStorage;
 
@@ -17,6 +19,11 @@ public class InMemoryItemStorage implements ItemStorage {
     private Map<Integer, Item> items = new HashMap<>();
     private final UserStorage userStorage;
     private int id = 0;
+
+    @Override
+    public ResponseDtoComment addComment(int iteimId, int userId, RequestDtoComment requestDtoComment) {
+        return null;
+    }
 
     public InMemoryItemStorage(@Qualifier("MemoryUser") UserStorage userStorage) {
         this.userStorage = userStorage;
@@ -38,7 +45,7 @@ public class InMemoryItemStorage implements ItemStorage {
         Optional<ItemDtoResponse> optionalItemDto;
         if (items.containsKey(itemId)) {
             Item item = items.get(itemId);
-            ItemDtoResponse itemDto = ItemMapper.toItemResponseDto(item);
+            ItemDtoResponse itemDto = ItemMapperUpdate.ItemToResponseDto(item);
             optionalItemDto = Optional.of(itemDto);
         } else {
             throw new ObjectNotFoundException(String.format("Вещи с id \"%s\"не существует.", id));
@@ -74,7 +81,7 @@ public class InMemoryItemStorage implements ItemStorage {
     @Override
     public Item update(int userId, int itemId, ItemDtoRequest itemDto) {
         validateUpdate(userId, itemId, itemDto);
-        Item item = ItemMapper.updateItem(itemDto, items.get(itemId));
+        Item item = ItemMapperUpdate.updateItem(itemDto, items.get(itemId));
         item.setOwner(userStorage.getUserById(userId).get());
         item.setId(itemId);
         items.remove(itemId);
@@ -102,7 +109,7 @@ public class InMemoryItemStorage implements ItemStorage {
                 if (item.getAvailable() &&
                         (item.getName().toLowerCase().contains(text)
                                 || item.getDescription().toLowerCase().contains(text))) {
-                    listItems.add(ItemMapper.toItemResponseDto(item));
+                    listItems.add(ItemMapperUpdate.ItemToResponseDto(item));
                 }
             }
         }

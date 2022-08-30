@@ -4,10 +4,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.yandex.practicum.item.Item;
+import ru.yandex.practicum.user.User;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findByBooker_IdOrderByStartDesc(int bookerId);
@@ -29,6 +32,10 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 //    List<Booking> findByOwner_id(int bookerId);
 
     List<Booking> findByItem(Item item);
+
+    List<Booking> findByItemAndBookerAndStatusAndStartBefore(Item item, User booker, BookingStatus bookingStatus
+            , Timestamp time);
+
 
     List<Booking> findByBooker_IdAndEndIsBeforeAndStartIsAfterOrderByStartDesc(int bookerId, Timestamp end,
                                                                                Timestamp start);

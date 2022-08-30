@@ -1,5 +1,8 @@
 package ru.yandex.practicum.item.storage;
 
+import ru.yandex.practicum.comment.Comment;
+import ru.yandex.practicum.comment.RequestDtoComment;
+import ru.yandex.practicum.comment.ResponseDtoComment;
 import ru.yandex.practicum.item.Item;
 import ru.yandex.practicum.item.ItemDtoRequest;
 import ru.yandex.practicum.item.ItemDtoResponse;
@@ -17,4 +20,6 @@ public interface ItemStorage {
     Item update (int userId, int itemId, ItemDtoRequest itemDto);
 
     List<ItemDtoResponse> searchItems(String text);
+
+    ResponseDtoComment addComment(int itemId, int userId, RequestDtoComment requestDtoComment);
 }

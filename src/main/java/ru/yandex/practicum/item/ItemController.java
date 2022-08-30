@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.comment.Comment;
+import ru.yandex.practicum.comment.RequestDtoComment;
+import ru.yandex.practicum.comment.ResponseDtoComment;
 import ru.yandex.practicum.item.storage.ItemStorage;
 
 import javax.validation.Valid;
@@ -48,11 +50,11 @@ public class ItemController {
         log.info("Поиск объектов, содержащих слово '{}'", text);
         return itemStorage.searchItems(text.toLowerCase());
     }
-    @PostMapping("/{itemId}")
-    public Item addComment( @PathVariable("itemId") int itemId,
-                            @RequestBody Comment comment,
-                            @RequestHeader("X-Sharer-User-Id") int userId) {
-        log.info("Создан объект '{}'", comment);
-        return itemStorage.create(userId, comment);
+    @PostMapping("/{itemId}/comment")
+    public ResponseDtoComment addComment(@PathVariable("itemId") int itemId,
+                                         @Validated @RequestBody RequestDtoComment requestDtoComment,
+                                         @RequestHeader("X-Sharer-User-Id") int userId) {
+        log.info("Создан комментарий '{}'", requestDtoComment);
+        return itemStorage.addComment(itemId, userId, requestDtoComment);
     }
 }

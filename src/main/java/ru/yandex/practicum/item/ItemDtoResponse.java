@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.booking.Booking;
+import ru.yandex.practicum.comment.Comment;
+import ru.yandex.practicum.comment.ResponseDtoComment;
 import ru.yandex.practicum.request.Request;
 
 import java.util.List;
@@ -21,6 +23,8 @@ public class ItemDtoResponse {
 
     private boolean available;
  //   private Request request;
-    private List<Booking> bookingList;
+ //   private List<Booking> bookingList;
+    private List<ResponseDtoComment> commentList;
+
 
 }
