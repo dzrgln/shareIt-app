@@ -16,10 +16,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "items", schema = "public")
+@Table(name = "items", schema = "PUBLIC")
 public class Item {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue
+            //(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="course_seq")
+    @SequenceGenerator(
+            name="course_seq",
+            sequenceName="course_sequence",
+            allocationSize=1
+    )
     private int id;
 
     @NotNull

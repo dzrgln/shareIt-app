@@ -14,13 +14,15 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "users",
-        schema = "public",
+        schema = "PUBLIC",
         uniqueConstraints = @UniqueConstraint(columnNames = "email")
 )
 
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
+            //(strategy = GenerationType.IDENTITY)
+
     private int id;
     @Column(name = "name", nullable = false)
     private String name;
@@ -29,8 +31,6 @@ public class User {
     @Column(name = "email")
     private String email;
 
-//    @OneToMany(mappedBy = "owner")
-//    private List<Item> items;
     @OneToMany(mappedBy = "requester")
     private List<Request> requestItems;
 

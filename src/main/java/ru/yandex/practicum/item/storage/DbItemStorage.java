@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 //@Qualifier("DbItem")
@@ -35,8 +36,23 @@ public class DbItemStorage implements ItemStorage {
     private final BookingsMapper bookingsMapper;
 
     @Override
-    public List<Item> getItems(int userId) {
-        return itemRepository.findByOwner_Id(userId);
+    public List<ItemDtoResponse> getItems(int userId) {
+        List<ItemDtoResponse> items = itemRepository.findByOwner_Id(userId).stream()
+                .map(itemMapper::itemToResponseItem)
+                .collect(Collectors.toList());
+         User user = null;
+        if (userRepository.findById(userId).isPresent()) {
+            user = userRepository.findById(userId).get();
+        }
+        for (ItemDtoResponse itemDtoResponse : items) {
+            if(findBookingLast(itemMapper.responseItemToItem(itemDtoResponse), user).isPresent()){
+                itemDtoResponse.setLastBooking(findBookingLast(itemMapper.responseItemToItem(itemDtoResponse), user).get());
+            }
+            if(findBookingNext(itemMapper.responseItemToItem(itemDtoResponse), user).isPresent()){
+                itemDtoResponse.setNextBooking(findBookingNext(itemMapper.responseItemToItem(itemDtoResponse), user).get());
+            }
+        }
+        return items;
     }
 
     @Override
@@ -65,7 +81,7 @@ public class DbItemStorage implements ItemStorage {
         List<Booking> bookingList = bookingRepository.getLastBooking(booker, item,
                 timestamp);
         Optional<ResponseBookingForItem> responseBookingForItem = Optional.empty();
-        if(!bookingList.isEmpty()){
+        if (!bookingList.isEmpty()) {
             responseBookingForItem = Optional.of(bookingsMapper.bookingToResponseBookingForItem(bookingList.get(0)));
         }
         return responseBookingForItem;
@@ -76,7 +92,7 @@ public class DbItemStorage implements ItemStorage {
         List<Booking> bookingList = bookingRepository.getNextBooking(booker, item,
                 timestamp);
         Optional<ResponseBookingForItem> responseBookingForItem = Optional.empty();
-        if(!bookingList.isEmpty()){
+        if (!bookingList.isEmpty()) {
             responseBookingForItem = Optional.of(bookingsMapper.bookingToResponseBookingForItem(bookingList.get(0)));
         }
         return responseBookingForItem;
@@ -151,7 +167,7 @@ public class DbItemStorage implements ItemStorage {
     @Override
     public ResponseDtoComment addComment(int itemId, int userId, RequestDtoComment requestDtoComment) {
         Comment comment = commentMapper.requestCommentToComment(requestDtoComment);
-        if(userRepository.findById(userId).isPresent()){
+        if (userRepository.findById(userId).isPresent()) {
             comment.setAuthor(userRepository.findById(userId).get());
         }
         comment.setItem(getItem(itemId));

@@ -25,9 +25,7 @@ public class ItemController {
     @GetMapping
     public List<ItemDtoResponse> getItems(@RequestHeader("X-Sharer-User-Id") int userId) {
         log.info("Получен GET-запрос к эндпоинту /items");
-        return itemStorage.getItems(userId).stream()
-                .map(itemMapper::itemToResponseItem)
-                .collect(Collectors.toList());
+        return itemStorage.getItems(userId);
     }
 
     @GetMapping("/{itemId}")
