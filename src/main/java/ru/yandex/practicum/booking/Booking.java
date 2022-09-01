@@ -13,10 +13,15 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "bookings", schema = "public")
+@Table(name = "bookings", schema = "PUBLIC")
 public class Booking {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+ //   @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="booking_seq")
+    @SequenceGenerator(
+            name="booking_seq",
+            sequenceName="booking_sequence",
+            allocationSize=1)
     private int id;
 
     @ManyToOne

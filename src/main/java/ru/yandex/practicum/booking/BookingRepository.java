@@ -32,4 +32,5 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "ORDER BY b.start asc")
     List<Booking> getNextBooking(User user, Item item, Timestamp timestamp);
 
+
 }

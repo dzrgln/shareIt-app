@@ -13,11 +13,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "comments", schema = "public")
+@Table(name = "comments", schema = "PUBLIC")
 public class Comment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+ //   @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="comment_seq")
+    @SequenceGenerator(
+            name="comment_seq",
+            sequenceName="comment_sequence",
+            allocationSize=1)
     private int id;
     @Column(name = "text")
     private String text;

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemStorage {
-    List<Item> getItems(int userId);
+    List<ItemDtoResponse> getItems(int userId);
 
     Optional<ItemDtoResponse> getItemById(Integer itemId, Integer userId);
 

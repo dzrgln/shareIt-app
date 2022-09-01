@@ -13,5 +13,7 @@ public interface ItemMapper {
 
     @Mapping(target = "comments", source = "commentsList")
     ItemDtoResponse itemToResponseItem(Item item);
+    @Mapping(target = "commentsList", source = "comments")
+    Item responseItemToItem(ItemDtoResponse itemDtoResponse);
 
 }
