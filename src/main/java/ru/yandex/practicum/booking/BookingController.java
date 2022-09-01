@@ -16,23 +16,25 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingStorage bookingStorage;
+    private final BookingsMapper bookingsMapper;
 
     @PostMapping
-    public Booking requestBooking(@RequestHeader("X-Sharer-User-Id") int requesterId,
-                                  @RequestBody RequestBooking requestBooking) {
+    public ResponseBooking requestBooking(@RequestHeader("X-Sharer-User-Id") int requesterId,
+                                          @RequestBody RequestBooking requestBooking) {
         Booking newBooking = bookingStorage.requestBooking(requesterId, requestBooking);
         log.info("Создано бронирование '{}'", newBooking);
-        return newBooking;
+
+        return bookingsMapper.bookingToResponseBooking(newBooking);
     }
 
 
     @PatchMapping("/{itemId}")
-    public Booking responseBooking(@RequestHeader("X-Sharer-User-Id") int requesterId,
+    public ResponseBooking responseBooking(@RequestHeader("X-Sharer-User-Id") int requesterId,
                                    @PathVariable("itemId") int itemId,
                                    @RequestParam String approved) {
         Booking newBooking = bookingStorage.responseBooking(requesterId, itemId, Boolean.parseBoolean(approved));
         log.info("Обновлено бронирование '{}'", newBooking);
-        return newBooking;
+        return bookingsMapper.bookingToResponseBooking(newBooking);
     }
 
     @GetMapping("/{bookingId}")

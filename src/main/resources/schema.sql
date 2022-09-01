@@ -26,15 +26,14 @@ CREATE TABLE IF NOT EXISTS items
     request_id   BIGINT,
     CONSTRAINT fk_request FOREIGN KEY (request_id) REFERENCES requests (id),
     CONSTRAINT fk_owner FOREIGN KEY (owner_id) REFERENCES users (id),
---    UNIQUE (id)
 );
 CREATE TYPE booking_status AS ENUM ('WAITING', 'APPROVED', 'REJECTED', 'CANCELED');
 
 CREATE TABLE IF NOT EXISTS bookings
 (
     id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    start_date TIMESTAMP WITHOUT TIME ZONE,
-    end_date   TIMESTAMP WITHOUT TIME ZONE,
+    start_date TIMESTAMP,
+    end_date   TIMESTAMP,
     item_id    BIGINT,
     booker_id  BIGINT,
     status     BOOLEAN,

@@ -7,13 +7,13 @@ import ru.yandex.practicum.booking.DTO.RequestBooking;
 import ru.yandex.practicum.booking.DTO.ResponseBooking;
 import ru.yandex.practicum.exceptions.BookingException;
 import ru.yandex.practicum.exceptions.ObjectNotFoundException;
-import ru.yandex.practicum.exceptions.ValidationException;
+import ru.yandex.practicum.item.Item;
+import ru.yandex.practicum.item.ItemRepository;
 import ru.yandex.practicum.user.UserRepository;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ManyToOne;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,14 +23,19 @@ import java.util.stream.Collectors;
 public class DbBookingStorage implements BookingStorage {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
-    private final BookingMapper bookingMapper;
+    private final ItemRepository itemRepository;
+    private final BookingsMapper bookingsMapper;
 
     @Override
     public Booking requestBooking(int requesterId, RequestBooking requestBooking) {
-        Booking booking = bookingMapper.requestBookingToBooking(requestBooking);
+        Booking booking = bookingsMapper.requestBookingToBooking(requestBooking);
         booking.setBooker(userRepository.findById(requesterId).get());
         validateRequestBooking(requesterId, booking);
-        return bookingRepository.save(booking);
+        Item item = booking.getItem();
+        item.getBookingList().add(booking);
+        bookingRepository.save(booking);
+        itemRepository.save(item);
+        return booking;
     }
 
     private void validateRequestBooking(int requesterId, Booking booking) {
@@ -70,11 +75,11 @@ public class DbBookingStorage implements BookingStorage {
         return bookingRepository.save(booking);
     }
 
-    private void validateResponse(int userId, Booking booking, boolean isApproved){
-        if(booking.getItem().getOwner().getId() != userId){
+    private void validateResponse(int userId, Booking booking, boolean isApproved) {
+        if (booking.getItem().getOwner().getId() != userId) {
             throw new ObjectNotFoundException("Вы не можете менять вещь так как не являетесь владельцем");
         }
-        if(!booking.getStatus().equals(BookingStatus.WAITING) ){
+        if (!booking.getStatus().equals(BookingStatus.WAITING)) {
             throw new BookingException("Вещь уже изменила статус");
         }
     }
@@ -83,7 +88,7 @@ public class DbBookingStorage implements BookingStorage {
     public Optional<ResponseBooking> getBookingById(int bookingId, int requesterId) {
         Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
         validateGetBooking(requesterId, optionalBooking);
-        ResponseBooking responseBooking = bookingMapper.bookingToResponseBooking(optionalBooking.get());
+        ResponseBooking responseBooking = bookingsMapper.bookingToResponseBooking(optionalBooking.get());
         return Optional.of(responseBooking);
     }
 
@@ -110,14 +115,12 @@ public class DbBookingStorage implements BookingStorage {
         switch (stateBooking) {
             case ALL:
                 bookingList = bookingRepository.findByBooker_IdOrderByStartDesc(bookerId).stream()
-                        .map(bookingMapper::bookingToResponseBooking)
+                        .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
-//            case CURRENT:
-//                bookingList = bookingRepository.findByBooker_IdAndEndIsBeforeAndStartIsAfterOrderByStartDesc()
             default:
                 bookingList = bookingRepository.findByBooker_IdOrderByStartDesc(bookerId).stream()
-                        .map(bookingMapper::bookingToResponseBooking)
+                        .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
         }
@@ -125,8 +128,17 @@ public class DbBookingStorage implements BookingStorage {
     }
 
     public List<ResponseBooking> getListBookingForOwner(int bookerId) {
-        return bookingRepository.findByOwner(bookerId).stream()
-                .map(bookingMapper::bookingToResponseBooking)
+        List<Booking> bookingList = new ArrayList<>();
+        for (Item item : itemRepository.findByOwner_Id(bookerId)) {
+            bookingList.addAll(bookingRepository.findByItem(item));
+        }
+        return bookingList.stream()
+                .sorted((b1, b2) -> {
+                    if (b1.getStart().before(b2.getStart())) return 1;
+                    else if (b1.getStart().after(b2.getStart())) return -1;
+                    else return 0;
+                })
+                .map(bookingsMapper::bookingToResponseBooking)
                 .collect(Collectors.toList());
     }
 

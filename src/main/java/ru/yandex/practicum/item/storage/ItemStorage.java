@@ -1,6 +1,5 @@
 package ru.yandex.practicum.item.storage;
 
-import ru.yandex.practicum.comment.Comment;
 import ru.yandex.practicum.comment.RequestDtoComment;
 import ru.yandex.practicum.comment.ResponseDtoComment;
 import ru.yandex.practicum.item.Item;

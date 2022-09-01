@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.booking.Booking;
 import ru.yandex.practicum.booking.BookingRepository;
 import ru.yandex.practicum.booking.BookingStatus;
+import ru.yandex.practicum.booking.BookingsMapper;
+import ru.yandex.practicum.booking.DTO.ResponseBookingForItem;
 import ru.yandex.practicum.comment.*;
 import ru.yandex.practicum.exceptions.BookingException;
 import ru.yandex.practicum.exceptions.ObjectNotFoundException;
@@ -15,6 +17,7 @@ import ru.yandex.practicum.user.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +32,7 @@ public class DbItemStorage implements ItemStorage {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
     private final ItemMapper itemMapper;
+    private final BookingsMapper bookingsMapper;
 
     @Override
     public List<Item> getItems(int userId) {
@@ -42,7 +46,40 @@ public class DbItemStorage implements ItemStorage {
         }
         Item item = itemRepository.findById(itemId).get();
         ItemDtoResponse itemDtoResponse = itemMapper.itemToResponseItem(item);
+        User requester = null;
+        if (userRepository.findById(userId).isPresent()) {
+            requester = userRepository.findById(userId).get();
+        }
+        if (findBookingLast(item, requester).isPresent()) {
+            itemDtoResponse.setLastBooking(findBookingLast(item, requester).get());
+        }
+        if (findBookingNext(item, requester).isPresent()) {
+            itemDtoResponse.setNextBooking(findBookingNext(item, requester).get());
+        }
         return Optional.of(itemDtoResponse);
+    }
+
+    public Optional<ResponseBookingForItem> findBookingLast(Item item, User booker) {
+        LocalDateTime localDateTime = LocalDateTime.now().plusHours(3);
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusHours(3));
+        List<Booking> bookingList = bookingRepository.getLastBooking(booker, item,
+                timestamp);
+        Optional<ResponseBookingForItem> responseBookingForItem = Optional.empty();
+        if(!bookingList.isEmpty()){
+            responseBookingForItem = Optional.of(bookingsMapper.bookingToResponseBookingForItem(bookingList.get(0)));
+        }
+        return responseBookingForItem;
+    }
+
+    public Optional<ResponseBookingForItem> findBookingNext(Item item, User booker) {
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusHours(3));
+        List<Booking> bookingList = bookingRepository.getNextBooking(booker, item,
+                timestamp);
+        Optional<ResponseBookingForItem> responseBookingForItem = Optional.empty();
+        if(!bookingList.isEmpty()){
+            responseBookingForItem = Optional.of(bookingsMapper.bookingToResponseBookingForItem(bookingList.get(0)));
+        }
+        return responseBookingForItem;
     }
 
     @Override
@@ -114,13 +151,16 @@ public class DbItemStorage implements ItemStorage {
     @Override
     public ResponseDtoComment addComment(int itemId, int userId, RequestDtoComment requestDtoComment) {
         Comment comment = commentMapper.requestCommentToComment(requestDtoComment);
-        comment.setAuthor(userRepository.findById(userId).get());
+        if(userRepository.findById(userId).isPresent()){
+            comment.setAuthor(userRepository.findById(userId).get());
+        }
         comment.setItem(getItem(itemId));
         validateAddComment(comment);
         commentRepository.save(comment);
         ResponseDtoComment responseDtoComment = commentMapper.commentToResponseComment(comment);
-        comment.getItem().getCommentList().add(comment);
-        itemRepository.save(comment.getItem());
+        Item item = comment.getItem();
+        item.getCommentsList().add(comment);
+        itemRepository.save(item);
         return responseDtoComment;
     }
 

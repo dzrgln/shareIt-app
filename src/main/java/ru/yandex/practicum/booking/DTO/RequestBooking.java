@@ -1,13 +1,11 @@
 package ru.yandex.practicum.booking.DTO;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.booking.BookingStatus;
 
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAccessor;
 
 @Data
 @NoArgsConstructor

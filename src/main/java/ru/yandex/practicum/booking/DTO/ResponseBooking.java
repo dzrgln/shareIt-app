@@ -4,13 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.booking.BookingStatus;
-import ru.yandex.practicum.item.Item;
+import ru.yandex.practicum.item.ItemDtoResponse;
 import ru.yandex.practicum.user.User;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
@@ -21,5 +16,5 @@ public class ResponseBooking {
     private String end;
     private BookingStatus status;
     private User booker;
-    private Item item;
+    private ItemDtoResponse item;
 }
