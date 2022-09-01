@@ -1,30 +1,33 @@
 package ru.yandex.practicum.item;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.comment.Comment;
 import ru.yandex.practicum.comment.RequestDtoComment;
 import ru.yandex.practicum.comment.ResponseDtoComment;
 import ru.yandex.practicum.item.storage.ItemStorage;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/items")
 @Slf4j
+@RequiredArgsConstructor
 public class ItemController {
     private final ItemStorage itemStorage;
+    private final ItemMapper itemMapper;
 
-    public ItemController(ItemStorage itemStorage) {
-        this.itemStorage = itemStorage;
-    }
+
 
     @GetMapping
-    public List<Item> getItems(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public List<ItemDtoResponse> getItems(@RequestHeader("X-Sharer-User-Id") int userId) {
         log.info("Получен GET-запрос к эндпоинту /items");
-        return itemStorage.getItems(userId);
+        return itemStorage.getItems(userId).stream()
+                .map(itemMapper::itemToResponseItem)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{itemId}")
@@ -39,10 +42,10 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public Item update(@RequestHeader("X-Sharer-User-Id") int userId, @PathVariable("itemId") int itemId
+    public ItemDtoResponse update(@RequestHeader("X-Sharer-User-Id") int userId, @PathVariable("itemId") int itemId
             , @Validated @RequestBody ItemDtoRequest itemDto) {
         log.info("Обновлен объект '{}'", itemDto);
-        return itemStorage.update(userId, itemId, itemDto);
+        return itemMapper.itemToResponseItem(itemStorage.update(userId, itemId, itemDto));
     }
 
     @GetMapping("/search")

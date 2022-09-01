@@ -5,11 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.booking.Booking;
 import ru.yandex.practicum.comment.Comment;
-import ru.yandex.practicum.comment.ResponseDtoComment;
 import ru.yandex.practicum.user.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -38,14 +36,16 @@ public class Item {
 
     @OneToMany
     @JoinColumn(name = "item")
-    List<Booking> bookingList;
+    private List<Booking> bookingList;
 
     @OneToMany
     @JoinColumn(name = "item")
-    List<Comment> commentList;
+    private List<Comment> commentsList;
 
     @NotNull
     private Boolean available;
+
+
 //    @ManyToOne
 //    @JoinColumn(name = "requester_id", referencedColumnName = "id")
 //    private Request request = null;
