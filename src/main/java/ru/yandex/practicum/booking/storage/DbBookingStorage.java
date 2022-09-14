@@ -1,6 +1,7 @@
 package ru.yandex.practicum.booking.storage;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.booking.*;
 import ru.yandex.practicum.booking.DTO.RequestBooking;
@@ -13,7 +14,6 @@ import ru.yandex.practicum.user.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -98,19 +98,23 @@ public class DbBookingStorage implements BookingStorage {
         }
         if (requesterId != optionalBooking.get().getItem().getOwner().getId() &&
                 optionalBooking.get().getBooker().getId() != requesterId) {
-            System.out.println("itemId " + optionalBooking.get().getItem().getId());
-            System.out.println("bookerId " + optionalBooking.get().getBooker().getId());
-            System.out.println("ownerId " + optionalBooking.get().getItem().getOwner().getId());
-            System.out.println("requesterId " + requesterId);
             throw new ObjectNotFoundException("Вы не являетесь пользователем или владельцем этой вещи");
         }
     }
 
+    private StateBooking validateStateAndBookerForGet(int bookerId, String state) {
+        if (state == null) state = "ALL";
+        if (!EnumUtils.isValidEnum(StateBooking.class, state)) {
+            throw new BookingException("Unknown state: " + state.toUpperCase());
+        }
+        checkExistenceForUser(bookerId);
+        return StateBooking.valueOf(state);
+    }
+
     @Override
     public List<ResponseBooking> getListBookingForUser(int bookerId, String state) {
-        if (state == null) state = "ALL";
-        StateBooking stateBooking = StateBooking.valueOf(state);
-        System.out.println("in the mothod");
+        StateBooking stateBooking = validateStateAndBookerForGet(bookerId, state);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis() + 10100000);
         List<ResponseBooking> bookingList = null;
         switch (stateBooking) {
             case ALL:
@@ -118,8 +122,36 @@ public class DbBookingStorage implements BookingStorage {
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
-            default:
-                bookingList = bookingRepository.findByBooker_IdOrderByStartDesc(bookerId).stream()
+            case CURRENT:
+                bookingList = bookingRepository.findByBooker_IdAndStartBeforeAndEndAfterOrderByStartAsc(bookerId,
+                                new Timestamp(System.currentTimeMillis() + 10800000),
+                                new Timestamp(System.currentTimeMillis() + 10800000))
+                        .stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+            case PAST:
+                bookingList = bookingRepository.findByBooker_IdAndEndBeforeOrderByStartAsc(bookerId,
+                                new Timestamp(System.currentTimeMillis() + 10800000))
+                        .stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+            case FUTURE:
+                bookingList = bookingRepository.findByBooker_IdAndStartAfterOrderByStartDesc(bookerId, timestamp)
+                        .stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+            case WAITING:
+                bookingList = bookingRepository.findByBooker_IdAndStatusOrderByStartAsc(bookerId, BookingStatus.WAITING)
+                        .stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+            case REJECTED:
+                bookingList = bookingRepository.findByBooker_IdAndStatusOrderByStartAsc(bookerId, BookingStatus.REJECTED)
+                        .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
@@ -127,19 +159,57 @@ public class DbBookingStorage implements BookingStorage {
         return bookingList;
     }
 
-    public List<ResponseBooking> getListBookingForOwner(int bookerId) {
-        List<Booking> bookingList = new ArrayList<>();
-        for (Item item : itemRepository.findByOwner_Id(bookerId)) {
-            bookingList.addAll(bookingRepository.findByItem(item));
+    private void checkExistenceForUser(int bookerId) {
+        if (userRepository.findById(bookerId).isEmpty()) {
+            throw new ObjectNotFoundException("Вы не являетесь пользователем или владельцем этой вещи");
         }
-        return bookingList.stream()
-                .sorted((b1, b2) -> {
-                    if (b1.getStart().before(b2.getStart())) return 1;
-                    else if (b1.getStart().after(b2.getStart())) return -1;
-                    else return 0;
-                })
-                .map(bookingsMapper::bookingToResponseBooking)
-                .collect(Collectors.toList());
+    }
+
+    public List<ResponseBooking> getListBookingForOwner(int bookerId, String state) {
+        StateBooking stateBooking = validateStateAndBookerForGet(bookerId, state);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis() + 10100000);
+        List<ResponseBooking> bookingList = null;
+        switch (stateBooking) {
+            case ALL:
+                bookingList = bookingRepository.getAllBookingsForOwner(bookerId).stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+            case CURRENT:
+                bookingList = bookingRepository.getCurrentBookingsForOwner(bookerId,
+                                new Timestamp(System.currentTimeMillis() + 10800000),
+                                new Timestamp(System.currentTimeMillis() + 10800000))
+                        .stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+            case PAST:
+                bookingList = bookingRepository.getPastBookingsForOwner(bookerId,
+                                new Timestamp(System.currentTimeMillis() + 10800000))
+                        .stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+            case FUTURE:
+                bookingList = bookingRepository.getFutureBookingsForOwner(bookerId, timestamp)
+                        .stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+            case WAITING:
+                bookingList = bookingRepository.getBookingsForOwnerWithStatus(bookerId, BookingStatus.WAITING)
+                        .stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+            case REJECTED:
+                bookingList = bookingRepository.getBookingsForOwnerWithStatus(bookerId, BookingStatus.REJECTED)
+                        .stream()
+                        .map(bookingsMapper::bookingToResponseBooking)
+                        .collect(Collectors.toList());
+                break;
+        }
+        return bookingList;
     }
 
 
