@@ -54,8 +54,9 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<ResponseBooking> getListBookingsForOwner(@RequestHeader("X-Sharer-User-Id") int requesterId) {
-        List<ResponseBooking> bookingList = bookingStorage.getListBookingForOwner(requesterId);
+    public List<ResponseBooking> getListBookingsForOwner(@RequestHeader("X-Sharer-User-Id") int requesterId,
+                                                         @RequestParam(required = false) String state) {
+        List<ResponseBooking> bookingList = bookingStorage.getListBookingForOwner(requesterId, state);
         log.info("Получен запрос на лист бронирований для пользователя с id '{}'", requesterId);
         return bookingList;
     }
