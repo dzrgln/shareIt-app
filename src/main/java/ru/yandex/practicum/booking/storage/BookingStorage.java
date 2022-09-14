@@ -17,8 +17,4 @@ public interface BookingStorage {
 
     List<ResponseBooking> getListBookingForUser(int bookerId, String state);
     List<ResponseBooking> getListBookingForOwner(int bookerId, String state);
-
-
-
-    List<Booking> getListBookingForAllItemsUser(int userId, StateBooking stateBooking);
 }

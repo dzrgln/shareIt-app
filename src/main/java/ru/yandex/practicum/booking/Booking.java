@@ -7,7 +7,6 @@ import ru.yandex.practicum.item.Item;
 import ru.yandex.practicum.user.User;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 @Table(name = "bookings", schema = "PUBLIC")
 public class Booking {
     @Id
- //   @GeneratedValue(strategy = GenerationType.IDENTITY)
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="booking_seq")
     @SequenceGenerator(
             name="booking_seq",

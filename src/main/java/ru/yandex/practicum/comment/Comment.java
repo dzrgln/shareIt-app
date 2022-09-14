@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 public class Comment {
 
     @Id
- //   @GeneratedValue(strategy = GenerationType.IDENTITY)
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="comment_seq")
     @SequenceGenerator(
             name="comment_seq",

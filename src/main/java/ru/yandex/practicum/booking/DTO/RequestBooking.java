@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.booking.BookingStatus;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data

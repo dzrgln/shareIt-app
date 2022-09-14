@@ -1,6 +1,5 @@
 package ru.yandex.practicum.item;
 
-import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.yandex.practicum.booking.BookingRepository;

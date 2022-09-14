@@ -12,7 +12,6 @@ import javax.persistence.*;
 @Table(name = "requests", schema = "PUBLIC")
 public class Request {
     @Id
-  //  @GeneratedValue(strategy = GenerationType.IDENTITY)
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="course_seq")
     @SequenceGenerator(
             name="course_seq",

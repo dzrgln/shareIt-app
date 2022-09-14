@@ -15,8 +15,6 @@ import ru.yandex.practicum.item.*;
 import ru.yandex.practicum.user.User;
 import ru.yandex.practicum.user.UserRepository;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +22,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-//@Qualifier("DbItem")
 @RequiredArgsConstructor
 public class DbItemStorage implements ItemStorage {
     private final ItemRepository itemRepository;
@@ -100,7 +97,7 @@ public class DbItemStorage implements ItemStorage {
     public Item create(int userId, Item item) {
         Item newItem;
         if (!userRepository.existsById(userId)) {
-            throw new ObjectNotFoundException("Такаого пользователя не сущестует");
+            throw new ObjectNotFoundException("Такого пользователя не существует");
         } else {
             User owner = userRepository.findById(userId).get();
             item.setOwner(owner);
@@ -126,7 +123,7 @@ public class DbItemStorage implements ItemStorage {
     @Override
     public List<ItemDtoResponse> searchItems(String text) {
         List<ItemDtoResponse> listItems = new ArrayList<>();
-        if (!text.equals("")) {
+        if (!"".equals(text)) {
             for (Item item : itemRepository.findAll()) {
                 if (item.getAvailable() &&
                         (item.getName().toLowerCase().contains(text)
@@ -177,7 +174,7 @@ public class DbItemStorage implements ItemStorage {
     }
 
     private void validateAddComment(Comment comment) {
-        List<Booking> bookingList = bookingRepository.findByItemAndBookerAndStatusAndStartIsBefore(
+        List<Booking> bookingList = bookingRepository.findBookingByItemBookerStatusStart(
                 comment.getItem(),
                 comment.getAuthor(),
                 BookingStatus.APPROVED,

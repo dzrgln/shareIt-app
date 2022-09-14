@@ -19,13 +19,11 @@ import java.util.List;
 @Table(name = "items", schema = "PUBLIC")
 public class Item {
     @Id
-//    @GeneratedValue
-            //(strategy = GenerationType.IDENTITY)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="course_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "course_seq")
     @SequenceGenerator(
-            name="course_seq",
-            sequenceName="course_sequence",
-            allocationSize=1
+            name = "course_seq",
+            sequenceName = "course_sequence",
+            allocationSize = 1
     )
     private int id;
 

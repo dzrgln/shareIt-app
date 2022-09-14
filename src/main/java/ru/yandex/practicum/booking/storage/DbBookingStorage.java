@@ -12,7 +12,6 @@ import ru.yandex.practicum.item.Item;
 import ru.yandex.practicum.item.ItemRepository;
 import ru.yandex.practicum.user.UserRepository;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -117,40 +116,41 @@ public class DbBookingStorage implements BookingStorage {
         List<ResponseBooking> bookingList = null;
         switch (stateBooking) {
             case ALL:
-                bookingList = bookingRepository.findByBooker_IdOrderByStartDesc(bookerId).stream()
+                bookingList = bookingRepository.getAllBookingForUser(bookerId).stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case CURRENT:
-                bookingList = bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartAsc(bookerId,
-                                LocalDateTime.now(),
-                                LocalDateTime.now())
+                LocalDateTime localDateTime = LocalDateTime.now();
+                bookingList = bookingRepository.getCurrentBookingForUser(bookerId,
+                                localDateTime,
+                                localDateTime)
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case PAST:
-                bookingList = bookingRepository.findByBooker_IdAndEndIsBeforeOrderByStartAsc(bookerId,
+                bookingList = bookingRepository.getPastBookingForUser(bookerId,
                                 LocalDateTime.now())
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case FUTURE:
-                bookingList = bookingRepository.findByBooker_IdAndStartIsAfterOrderByStartDesc(bookerId,
+                bookingList = bookingRepository.getFutureBookingForUser(bookerId,
                                 LocalDateTime.now())
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case WAITING:
-                bookingList = bookingRepository.findByBooker_IdAndStatusOrderByStartAsc(bookerId, BookingStatus.WAITING)
+                bookingList = bookingRepository.getBookingForUserWithStatus(bookerId, BookingStatus.WAITING)
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case REJECTED:
-                bookingList = bookingRepository.findByBooker_IdAndStatusOrderByStartAsc(bookerId, BookingStatus.REJECTED)
+                bookingList = bookingRepository.getBookingForUserWithStatus(bookerId, BookingStatus.REJECTED)
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
@@ -175,16 +175,17 @@ public class DbBookingStorage implements BookingStorage {
                         .collect(Collectors.toList());
                 break;
             case CURRENT:
+                LocalDateTime localDateTime = LocalDateTime.now();
                 bookingList = bookingRepository.getCurrentBookingsForOwner(bookerId,
-                                LocalDateTime.now(),
-                                LocalDateTime.now())
+                                localDateTime,
+                                localDateTime)
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case PAST:
                 bookingList = bookingRepository.getPastBookingsForOwner(bookerId,
-                               LocalDateTime.now())
+                                LocalDateTime.now())
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
@@ -209,11 +210,5 @@ public class DbBookingStorage implements BookingStorage {
                 break;
         }
         return bookingList;
-    }
-
-
-    @Override
-    public List<Booking> getListBookingForAllItemsUser(int userId, StateBooking stateBooking) {
-        return null;
     }
 }

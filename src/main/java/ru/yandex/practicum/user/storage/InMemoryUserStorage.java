@@ -11,7 +11,6 @@ import ru.yandex.practicum.user.UserMapper;
 import java.util.*;
 
 @Slf4j
-//@Component
 @Qualifier("MemoryUser")
 public class InMemoryUserStorage implements UserStorage {
     private Map<Integer, User> users = new HashMap<>();
