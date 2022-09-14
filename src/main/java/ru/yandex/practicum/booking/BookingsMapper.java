@@ -20,8 +20,8 @@ public interface BookingsMapper {
     @Mapping(target = "item", source = "itemId")
     Booking requestBookingToBooking(RequestBooking requestBooking);
 
-    @Mapping(target = "start", expression = "java(booking.getStart().toLocalDateTime().minusHours(3).toString())")
-    @Mapping(target = "end", expression = "java(booking.getEnd().toLocalDateTime().minusHours(3).toString())")
+    @Mapping(target = "start", expression = "java(booking.getStart().toString())")
+    @Mapping(target = "end", expression = "java(booking.getEnd().toString())")
     ResponseBooking bookingToResponseBooking(Booking booking);
     @Mapping(target = "bookerId", source = "booker.id")
     ResponseBookingForItem bookingToResponseBookingForItem(Booking booking);

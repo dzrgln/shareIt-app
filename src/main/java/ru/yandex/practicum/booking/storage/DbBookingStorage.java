@@ -13,7 +13,7 @@ import ru.yandex.practicum.item.ItemRepository;
 import ru.yandex.practicum.user.UserRepository;
 
 import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,15 +39,15 @@ public class DbBookingStorage implements BookingStorage {
     }
 
     private void validateRequestBooking(int requesterId, Booking booking) {
-        Timestamp end = booking.getEnd();
-        Timestamp start = booking.getStart();
-        if (end.before(Timestamp.from(Instant.now()))) {
+        LocalDateTime end = booking.getEnd();
+        LocalDateTime start = booking.getStart();
+        if (end.isBefore(LocalDateTime.now())) {
             throw new BookingException("Дата окончания бронирования в прошлом");
         }
-        if (end.before(start)) {
+        if (end.isBefore(start)) {
             throw new BookingException("Дата окончания не может быть раньше даты начала");
         }
-        if (start.before(Timestamp.from(Instant.now()))) {
+        if (start.isBefore(LocalDateTime.now())) {
             throw new BookingException("Дата начала бронирования в прошлом");
         }
         if (requesterId == booking.getItem().getOwner().getId()) {
@@ -114,7 +114,6 @@ public class DbBookingStorage implements BookingStorage {
     @Override
     public List<ResponseBooking> getListBookingForUser(int bookerId, String state) {
         StateBooking stateBooking = validateStateAndBookerForGet(bookerId, state);
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis() + 10100000);
         List<ResponseBooking> bookingList = null;
         switch (stateBooking) {
             case ALL:
@@ -123,22 +122,23 @@ public class DbBookingStorage implements BookingStorage {
                         .collect(Collectors.toList());
                 break;
             case CURRENT:
-                bookingList = bookingRepository.findByBooker_IdAndStartBeforeAndEndAfterOrderByStartAsc(bookerId,
-                                new Timestamp(System.currentTimeMillis() + 10800000),
-                                new Timestamp(System.currentTimeMillis() + 10800000))
+                bookingList = bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartAsc(bookerId,
+                                LocalDateTime.now(),
+                                LocalDateTime.now())
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case PAST:
-                bookingList = bookingRepository.findByBooker_IdAndEndBeforeOrderByStartAsc(bookerId,
-                                new Timestamp(System.currentTimeMillis() + 10800000))
+                bookingList = bookingRepository.findByBooker_IdAndEndIsBeforeOrderByStartAsc(bookerId,
+                                LocalDateTime.now())
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case FUTURE:
-                bookingList = bookingRepository.findByBooker_IdAndStartAfterOrderByStartDesc(bookerId, timestamp)
+                bookingList = bookingRepository.findByBooker_IdAndStartIsAfterOrderByStartDesc(bookerId,
+                                LocalDateTime.now())
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
@@ -167,7 +167,6 @@ public class DbBookingStorage implements BookingStorage {
 
     public List<ResponseBooking> getListBookingForOwner(int bookerId, String state) {
         StateBooking stateBooking = validateStateAndBookerForGet(bookerId, state);
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis() + 10100000);
         List<ResponseBooking> bookingList = null;
         switch (stateBooking) {
             case ALL:
@@ -177,21 +176,21 @@ public class DbBookingStorage implements BookingStorage {
                 break;
             case CURRENT:
                 bookingList = bookingRepository.getCurrentBookingsForOwner(bookerId,
-                                new Timestamp(System.currentTimeMillis() + 10800000),
-                                new Timestamp(System.currentTimeMillis() + 10800000))
+                                LocalDateTime.now(),
+                                LocalDateTime.now())
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case PAST:
                 bookingList = bookingRepository.getPastBookingsForOwner(bookerId,
-                                new Timestamp(System.currentTimeMillis() + 10800000))
+                               LocalDateTime.now())
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());
                 break;
             case FUTURE:
-                bookingList = bookingRepository.getFutureBookingsForOwner(bookerId, timestamp)
+                bookingList = bookingRepository.getFutureBookingsForOwner(bookerId, LocalDateTime.now())
                         .stream()
                         .map(bookingsMapper::bookingToResponseBooking)
                         .collect(Collectors.toList());

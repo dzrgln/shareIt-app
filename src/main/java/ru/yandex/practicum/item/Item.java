@@ -52,8 +52,4 @@ public class Item {
     @NotNull
     private Boolean available;
 
-
-//    @ManyToOne
-//    @JoinColumn(name = "requester_id", referencedColumnName = "id")
-//    private Request request = null;
 }

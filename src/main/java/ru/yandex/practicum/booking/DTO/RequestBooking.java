@@ -6,16 +6,14 @@ import lombok.NoArgsConstructor;
 import ru.yandex.practicum.booking.BookingStatus;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@Builder
 public class RequestBooking {
     private int itemId;
-    private Timestamp start;
-    private Timestamp end;
+    private LocalDateTime start;
+    private LocalDateTime end;
     private BookingStatus status = BookingStatus.WAITING;
-
-  //  LocalDateTime time = LocalDateTime.from(start);
 }

@@ -40,15 +40,15 @@ public class DbItemStorage implements ItemStorage {
         List<ItemDtoResponse> items = itemRepository.findByOwner_Id(userId).stream()
                 .map(itemMapper::itemToResponseItem)
                 .collect(Collectors.toList());
-         User user = null;
+        User user = null;
         if (userRepository.findById(userId).isPresent()) {
             user = userRepository.findById(userId).get();
         }
         for (ItemDtoResponse itemDtoResponse : items) {
-            if(findBookingLast(itemMapper.responseItemToItem(itemDtoResponse), user).isPresent()){
+            if (findBookingLast(itemMapper.responseItemToItem(itemDtoResponse), user).isPresent()) {
                 itemDtoResponse.setLastBooking(findBookingLast(itemMapper.responseItemToItem(itemDtoResponse), user).get());
             }
-            if(findBookingNext(itemMapper.responseItemToItem(itemDtoResponse), user).isPresent()){
+            if (findBookingNext(itemMapper.responseItemToItem(itemDtoResponse), user).isPresent()) {
                 itemDtoResponse.setNextBooking(findBookingNext(itemMapper.responseItemToItem(itemDtoResponse), user).get());
             }
         }
@@ -76,10 +76,8 @@ public class DbItemStorage implements ItemStorage {
     }
 
     public Optional<ResponseBookingForItem> findBookingLast(Item item, User booker) {
-        LocalDateTime localDateTime = LocalDateTime.now().plusHours(3);
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusHours(3));
         List<Booking> bookingList = bookingRepository.getLastBooking(booker, item,
-                timestamp);
+                LocalDateTime.now());
         Optional<ResponseBookingForItem> responseBookingForItem = Optional.empty();
         if (!bookingList.isEmpty()) {
             responseBookingForItem = Optional.of(bookingsMapper.bookingToResponseBookingForItem(bookingList.get(0)));
@@ -88,9 +86,8 @@ public class DbItemStorage implements ItemStorage {
     }
 
     public Optional<ResponseBookingForItem> findBookingNext(Item item, User booker) {
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now().plusHours(3));
         List<Booking> bookingList = bookingRepository.getNextBooking(booker, item,
-                timestamp);
+                LocalDateTime.now());
         Optional<ResponseBookingForItem> responseBookingForItem = Optional.empty();
         if (!bookingList.isEmpty()) {
             responseBookingForItem = Optional.of(bookingsMapper.bookingToResponseBookingForItem(bookingList.get(0)));
@@ -141,11 +138,9 @@ public class DbItemStorage implements ItemStorage {
     }
 
     private void validateUpdate(int userId, int itemId, ItemDtoRequest itemDto) {
-        System.out.println("into method");
         if (!itemRepository.existsById(itemId)) {
             throw new ObjectNotFoundException(String.format("Вещи с id \"%s\"не существует.", itemId));
         }
-        System.out.println("after first checking");
         if (!userRepository.findById(userId).isPresent()) {
             throw new ValidationException(String.format("Пользователь с id \"%s\"не существует.", userId));
         }
@@ -181,11 +176,11 @@ public class DbItemStorage implements ItemStorage {
     }
 
     private void validateAddComment(Comment comment) {
-        List<Booking> bookingList = bookingRepository.findByItemAndBookerAndStatusAndStartBefore(
+        List<Booking> bookingList = bookingRepository.findByItemAndBookerAndStatusAndStartIsBefore(
                 comment.getItem(),
                 comment.getAuthor(),
                 BookingStatus.APPROVED,
-                Timestamp.from(Instant.now().plusSeconds(86500)));
+                LocalDateTime.now());
         if (bookingList.isEmpty()) {
             throw new BookingException("Пользователь не пользовался указанной вещью");
         }

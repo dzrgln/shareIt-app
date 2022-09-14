@@ -8,6 +8,7 @@ import ru.yandex.practicum.user.User;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -32,10 +33,10 @@ public class Booking {
     private User booker;
 
     @Column(name = "start_date")
-    private Timestamp start;
+    private LocalDateTime start;
 
     @Column(name = "end_date")
-    private Timestamp end;
+    private LocalDateTime end;
 
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
