@@ -9,7 +9,7 @@ import ru.yandex.practicum.item.ItemDtoResponse;
 import java.util.List;
 import java.util.Optional;
 
-public interface ItemStorage {
+public interface ItemService {
     List<ItemDtoResponse> getItems(int userId);
 
     Optional<ItemDtoResponse> getItemById(Integer itemId, Integer userId);

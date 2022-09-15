@@ -3,6 +3,7 @@ package ru.yandex.practicum.booking.storage;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.booking.*;
 import ru.yandex.practicum.booking.DTO.RequestBooking;
 import ru.yandex.practicum.booking.DTO.ResponseBooking;
@@ -17,9 +18,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class DbBookingStorage implements BookingStorage {
+public class DbBookingService implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;

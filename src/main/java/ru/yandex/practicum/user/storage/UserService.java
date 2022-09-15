@@ -6,7 +6,7 @@ import ru.yandex.practicum.user.UserDto;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserStorage {
+public interface UserService {
     List<User> getUsers();
 
     Optional<User> getUserById(Integer id);

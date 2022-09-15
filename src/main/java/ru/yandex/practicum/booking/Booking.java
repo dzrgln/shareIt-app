@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 @Table(name = "bookings", schema = "PUBLIC")
 public class Booking {
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="booking_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "booking_seq")
     @SequenceGenerator(
-            name="booking_seq",
-            sequenceName="booking_sequence",
-            allocationSize=1)
+            name = "booking_seq",
+            sequenceName = "booking_sequence",
+            allocationSize = 1)
     private int id;
 
     @ManyToOne

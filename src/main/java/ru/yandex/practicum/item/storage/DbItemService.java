@@ -2,6 +2,7 @@ package ru.yandex.practicum.item.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.booking.Booking;
 import ru.yandex.practicum.booking.BookingRepository;
 import ru.yandex.practicum.booking.BookingStatus;
@@ -21,9 +22,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class DbItemStorage implements ItemStorage {
+public class DbItemService implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;

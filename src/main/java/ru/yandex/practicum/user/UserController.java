@@ -3,7 +3,7 @@ package ru.yandex.practicum.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.user.storage.UserStorage;
+import ru.yandex.practicum.user.storage.UserService;
 
 import java.util.List;
 
@@ -11,9 +11,9 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-    private final UserStorage userStorage;
+    private final UserService userStorage;
 
-    public UserController(UserStorage userStorage) {
+    public UserController(UserService userStorage) {
         this.userStorage = userStorage;
     }
 

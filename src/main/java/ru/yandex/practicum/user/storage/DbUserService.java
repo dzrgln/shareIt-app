@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class DbUserStorage implements UserStorage{
+public class DbUserService implements UserService {
 
     private final UserRepository repository;
 
